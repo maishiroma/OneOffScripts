@@ -26,8 +26,7 @@ while getopts ':hs:' option; do
 done
 shift $((OPTIND - 1))
 
-echo "WARNING! You are about to reset your entire Terraform configuration! There is NO undo for this."
-echo "Are you SURE you want to do this? Only `yes` will be accepted."
+echo "WARNING! You are about to reset your entire Terraform configuration! There is NO undo for this. Are you SURE you want to do this? Only `yes` will be accepted."
 
 read userInput
 echo
