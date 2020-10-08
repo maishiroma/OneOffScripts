@@ -49,8 +49,20 @@ check_os() {
 download_terraform_binary() {
     echo "Preparing to download terraform v${1}..."
     
-    if [ -f "$UNUSED_BINARY_PATH/terraform_${1}.exe" ]; then
-        echo "Hey man, you already have terraform v${1}! Just switch to it! Or better yet, you're already using it!"
+    if [ -f "$MAIN_BINARY_PATH/terraform" ]; then 
+        currVersion=$(terraform --version | sed -n 1p | cut -d 'v' -f 2)
+        if [ "$currVersion" == "${1}" ]; then
+            echo "Hey man, you already have terraform v${1}! In fact, you're already using it!"
+            exit 1;
+        else
+            echo "There seems to be an existing terraform version here! We'll move it to safekeeping in $UNUSED_BINARY_PATH."
+            mv -f $MAIN_BINARY_PATH/terraform $UNUSED_BINARY_PATH/terraform_$currVersion.exe
+            echo "Moved terraform v${currVersion}!"
+            echo
+        fi
+
+    elif [ -f "$UNUSED_BINARY_PATH/terraform_${1}.exe" ]; then
+        echo "Hey man, you already have terraform v${1}! Just switch to it!"
         exit 1;
     fi
 
@@ -60,14 +72,6 @@ download_terraform_binary() {
         echo "Whoops! The download failed! Passed in an invalid version, hm?"
         rm -f "terraform_${1}_${os}.zip"
         exit 1
-    fi
-
-    if [ -f "$MAIN_BINARY_PATH/terraform" ]; then
-        echo "There seems to be an existing terraform version here! We'll move it to safekeeping in $UNUSED_BINARY_PATH."
-        currVersion=$(terraform --version | sed -n 1p | cut -d 'v' -f 2)
-        mv -f $MAIN_BINARY_PATH/terraform $UNUSED_BINARY_PATH/terraform_$currVersion.exe
-        echo "Moved terraform v${currVersion}!"
-        echo
     fi
     
     if [ ! -d "$MAIN_BINARY_PATH" ]; then
