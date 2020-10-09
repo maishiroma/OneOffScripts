@@ -49,7 +49,10 @@ check_os() {
 download_terraform_binary() {
     echo "Preparing to download terraform v${1}..."
     
-    if [ -f "$MAIN_BINARY_PATH/terraform" ]; then 
+    if [ -f "$UNUSED_BINARY_PATH/terraform_${1}.exe" ]; then
+        echo "Hey man, you already have terraform v${1}! Just switch to it!"
+        exit 1;
+    elif [ -f "$MAIN_BINARY_PATH/terraform" ]; then 
         currVersion=$(terraform --version | sed -n 1p | cut -d 'v' -f 2)
         if [ "$currVersion" == "${1}" ]; then
             echo "Hey man, you already have terraform v${1}! In fact, you're already using it!"
@@ -60,15 +63,11 @@ download_terraform_binary() {
             echo "Moved terraform v${currVersion}!"
             echo
         fi
-
-    elif [ -f "$UNUSED_BINARY_PATH/terraform_${1}.exe" ]; then
-        echo "Hey man, you already have terraform v${1}! Just switch to it!"
-        exit 1;
     fi
 
     os=$(check_os)
     exit_code=$(curl -w '%{http_code}\n' -sLO "https://releases.hashicorp.com/terraform/${1}/terraform_${1}_${os}.zip")
-    if [ "exit_code" != "200" ]; then
+    if [ "$exit_code" != "200" ]; then
         echo "Whoops! The download failed! Passed in an invalid version, hm?"
         rm -f "terraform_${1}_${os}.zip"
         exit 1
